@@ -78,13 +78,24 @@ def run_app(fTrainIn, fTestIn):
                                        [datum.strip()
                                         for datum in lineTrain.split("\t")]))))
 
-    trainingTree = dtree.create_decision_tree(trainData, attrListTrain,targetAttrTrain, dtree.gain)
+    possible_dic = {}
+    for trainRecord in trainData:
+        for k in trainRecord.keys():
+            if k in possible_dic:
+                possible_dic[k].append(trainRecord[k])
+            else:
+                possible_dic[k]=[trainRecord[k]]
+
+    for kk in possible_dic.keys():
+        possible_dic[kk] = dtree.unique(possible_dic[kk])
+
+    trainingTree = dtree.create_decision_tree(None, trainData, attrListTrain,targetAttrTrain, possible_dic,  dtree.gain)
 
     trainingClassify = dtree.classify(trainingTree, trainData)
 
-    testTree = dtree.create_decision_tree(testData, attrList, targetAttribute,dtree.gain)
+    #testTree = dtree.create_decision_tree(testData, attrList, targetAttribute,dtree.gain)
 
-    testClassify = dtree.classify(testTree, testData)
+    testClassify = dtree.classify(trainingTree, testData)
 
     # also returning the example Classify in both the files
     givenTestClassify = []

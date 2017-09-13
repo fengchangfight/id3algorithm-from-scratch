@@ -37,15 +37,16 @@ def gain(data, attr, target_attr):
     return (entropy(data, target_attr) - subset_entropy)
 
 #==fc== this is recursive method, which always choose the best attr and subdivide the dataset into sub dataset to make subtrees until no node
-def create_decision_tree(data, attributes, target_attr, fitness_func):
+def create_decision_tree(parentdata, data, attributes, target_attr, possible_dic, fitness_func):
     """
     Returns a new decision tree based on the examples given.
     """
     data = data[:]
     vals = [record[target_attr] for record in data]
-    default = majority_value(data, target_attr)
-    if not data or (len(attributes) - 1) <= 0:
-        return default
+    if not data :
+        return majority_value(parentdata, target_attr)
+    elif len(attributes) <= 1:
+        return majority_value(data, target_attr)
     #==fc== all the same values
     elif vals.count(vals[0]) == len(vals):
         return vals[0]
@@ -58,12 +59,13 @@ def create_decision_tree(data, attributes, target_attr, fitness_func):
         tree = {best: {}}
 
         # ==fc== create sub tree
-        for val in get_values(data, best):
+        for val in possible_dic[best]:
             # ==fc== create sub tree
             subtree = create_decision_tree(
+                data,
                 get_examples(data, best, val),
                 [attr for attr in attributes if attr != best],
-                target_attr,
+                target_attr, possible_dic,
                 fitness_func)
 
             tree[best][val] = subtree
